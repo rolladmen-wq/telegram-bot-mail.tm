@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from telebot.types import BotCommand
 
 # ១. ដាក់ Token របស់ Bot អ្នកនៅទីនេះ
-BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+BOT_TOKEN = '8617120717:AAFmGvnIBbuKAsOWzieU2lvHqdocisLcXyo'
 bot = telebot.TeleBot(BOT_TOKEN)
 
 API_URL = "https://api.mail.tm"
@@ -220,4 +220,5 @@ if __name__ == '__main__':
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     
     # បើកដំណើរការ Bot Telegram
+
     bot.polling(none_stop=True)
