@@ -201,6 +201,12 @@ def keep_alive():
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(b"Bot is running smoothly on Render!")
+            
+        # បន្ថែមមុខងារ do_HEAD ថ្មីនៅទីនេះ ដើម្បីដោះស្រាយ Error 501
+        def do_HEAD(self):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
     
     port = int(os.environ.get('PORT', 8080))
     server = HTTPServer(('', port), RequestHandler)
@@ -222,3 +228,4 @@ if __name__ == '__main__':
     # បើកដំណើរការ Bot Telegram
 
     bot.polling(none_stop=True)
+
