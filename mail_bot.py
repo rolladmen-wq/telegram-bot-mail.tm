@@ -100,12 +100,18 @@ def check_email(message):
                 except:
                     time_str = "មិនស្គាល់ម៉ោង"
 
-                # ស្វែងរកលេខកូដ (៤ ទៅ ៨ ខ្ទង់) ហើយរៀបចំអត្ថបទ
+                # ស្វែងរកលេខកូដ (៤ ទៅ ៨ ខ្ទង់)
                 code_match = re.search(r'\b\d{4,8}\b', text_content)
-                code_text = f"🔑 **លេខកូដ៖** `{code_match.group(0)}` (ចុចដើម្បី Copy)\n" if code_match else ""
+                code_alert = "👇 **លេខកូដនៅសារខាងក្រោម (ចុចដើម្បី Copy)** 👇\n" if code_match else ""
 
-                email_text = f"{status}\n⏰ ពេលវេលា៖ {time_str}\n👤 ពី៖ {sender}\n📝 ប្រធានបទ៖ {subject}\n{code_text}💬 ខ្លឹមសារ៖ \n{text_content}...\n"
+                # ១. ផ្ញើសារអត្ថបទធម្មតាជាមុនសិន
+                email_text = f"{status}\n⏰ ពេលវេលា៖ {time_str}\n👤 ពី៖ {sender}\n📝 ប្រធានបទ៖ {subject}\n{code_alert}💬 ខ្លឹមសារ៖ \n{text_content}...\n"
                 bot.send_message(chat_id, email_text, parse_mode='Markdown')
+
+                # ២. ផ្ញើសារលេខកូដដាច់ដោយឡែក (ងាយស្រួល Copy បំផុត)
+                if code_match:
+                    otp = code_match.group(0)
+                    bot.send_message(chat_id, f"`{otp}`", parse_mode='Markdown')
 
     except Exception as e:
         bot.send_message(chat_id, f"❌ មានកំហុស៖ {e}")
@@ -139,12 +145,18 @@ def auto_check_new_emails():
                             except:
                                 time_str = "មិនស្គាល់ម៉ោង"
 
-                            # ស្វែងរកលេខកូដ (៤ ទៅ ៨ ខ្ទង់) ហើយរៀបចំអត្ថបទ
+                            # ស្វែងរកលេខកូដ (៤ ទៅ ៨ ខ្ទង់)
                             code_match = re.search(r'\b\d{4,8}\b', text_content)
-                            code_text = f"🔑 **លេខកូដ៖** `{code_match.group(0)}` (ចុចដើម្បី Copy)\n" if code_match else ""
+                            code_alert = "👇 **លេខកូដនៅសារខាងក្រោម (ចុចដើម្បី Copy)** 👇\n" if code_match else ""
 
-                            email_text = f"🔔 **អ្នកមានសារថ្មីចូល!** 🔔\n⏰ ពេលវេលា៖ {time_str}\n👤 ពី៖ {sender}\n📝 ប្រធានបទ៖ {subject}\n{code_text}💬 ខ្លឹមសារ៖ \n{text_content}...\n"
+                            # ១. ផ្ញើសារអត្ថបទ
+                            email_text = f"🔔 **អ្នកមានសារថ្មីចូល!** 🔔\n⏰ ពេលវេលា៖ {time_str}\n👤 ពី៖ {sender}\n📝 ប្រធានបទ៖ {subject}\n{code_alert}💬 ខ្លឹមសារ៖ \n{text_content}...\n"
                             bot.send_message(chat_id, email_text, parse_mode='Markdown')
+
+                            # ២. ផ្ញើសារលេខកូដដាច់ដោយឡែក
+                            if code_match:
+                                otp = code_match.group(0)
+                                bot.send_message(chat_id, f"`{otp}`", parse_mode='Markdown')
             except:
                 pass
         time.sleep(10) 
@@ -176,4 +188,3 @@ if __name__ == '__main__':
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     bot.polling(none_stop=True)
-
