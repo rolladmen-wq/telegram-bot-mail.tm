@@ -27,7 +27,7 @@ def send_welcome(message):
         "សួស្តី! ខ្ញុំជា Bot សម្រាប់ឆែកមើលសារពីគណនី mail.tm របស់អ្នក។\n\n"
         "👉 ប្រើ /login ដើម្បីចូលគណនី\n"
         "👉 ប្រើ /check ដើម្បីមើលសារដោយដៃ\n"
-        "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់\n\n"
+        "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់ (Clear Chat)\n\n"
         "🔔 ចំណាំ៖ ពេល Login រួចរាល់ ខ្ញុំនឹងផ្ញើសារថ្មីៗជូនអ្នកដោយស្វ័យប្រវត្តិ!"
     )
     bot.send_message(chat_id, welcome_text)
@@ -114,24 +114,24 @@ def check_email(message):
     except Exception as e:
         bot.send_message(chat_id, f"❌ មានកំហុស៖ {e}")
 
-# --- មុខងារ /clean (បោសសម្អាតអេក្រង់ Telegram ទាំងស្រុង) ---
+# --- មុខងារ /clean (បោសសម្អាតតែអេក្រង់ Telegram ប៉ុណ្ណោះ មិនប៉ះពាល់ Mail.tm ទេ) ---
 @bot.message_handler(commands=['clean'])
 def clean_bot_chat(message):
     chat_id = message.chat.id
     current_id = message.message_id
     
-    # ផ្ញើសារប្រាប់អតិថិជនសិន
-    temp_msg = bot.send_message(chat_id, "🧹 កំពុងបោសសម្អាតសារទាំងអស់ពីលើអេក្រង់...")
+    # ផ្ញើសារប្រាប់អតិថិជន
+    temp_msg = bot.send_message(chat_id, "🧹 កំពុងបោសសម្អាតអេក្រង់ Telegram (សារក្នុង mail.tm នៅដដែល)...")
     
-    # ល្បិច៖ ឱ្យ Bot តាមលុបសារថយក្រោយចំនួន ១០០ សារជាប់ៗគ្នា
+    # ល្បិច៖ ឱ្យ Bot តាមលុបសារថយក្រោយចំនួន ១០០ សារជាប់ៗគ្នា តែក្នុង Telegram
     for m_id in range(current_id, current_id - 100, -1):
         try:
             bot.delete_message(chat_id, m_id)
         except:
             pass # បើគ្មានសារ ឱ្យវារំលង
             
-    # លោតសារបញ្ជាក់ រួចលុបវាចោលវិញក្នុង ៣ វិនាទី
-    success_msg = bot.send_message(chat_id, "✅ បានសម្អាតអេក្រង់រួចរាល់!")
+    # លោតសារបញ្ជាក់ រួចលុបវាចោលវិញក្នុង ៣ វិនាទី ដើម្បីឱ្យអេក្រង់ទទេស្អាត១០០%
+    success_msg = bot.send_message(chat_id, "✅ បានសម្អាតអេក្រង់ Telegram រួចរាល់!")
     threading.Timer(3.0, lambda: bot.delete_message(chat_id, success_msg.message_id)).start()
 
 # ==========================================
@@ -198,7 +198,7 @@ if __name__ == '__main__':
         BotCommand("start", "ចាប់ផ្តើម"),
         BotCommand("login", "ចូលគណនី"),
         BotCommand("check", "ឆែកសារ"),
-        BotCommand("clean", "សម្អាតអេក្រង់ (Clear Screen)") 
+        BotCommand("clean", "សម្អាតអេក្រង់ (Clear Chat)") 
     ])
     print("Bot កំពុងដំណើរការ...")
     threading.Thread(target=keep_alive, daemon=True).start()
