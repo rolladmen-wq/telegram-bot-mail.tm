@@ -19,19 +19,6 @@ user_emails = {}
 def clean_html(raw_html):
     return re.sub(r'<[^>]+>', '', raw_html).strip()
 
-# --- ជំនួយការផ្ញើសារ និងកត់ត្រា ID ដើម្បីទុកលុបពេលវាយ /clean ---
-def send_and_track(chat_id, text, parse_mode=None):
-    try:
-        msg = bot.send_message(chat_id, text, parse_mode=parse_mode)
-        if chat_id in user_emails:
-            if "msg_ids" not in user_emails[chat_id]:
-                user_emails[chat_id]["msg_ids"] = []
-            user_emails[chat_id]["msg_ids"].append(msg.message_id)
-        return msg
-    except Exception as e:
-        print(f"Error sending message: {e}")
-        return None
-
 # --- មុខងារ /start ---
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -40,7 +27,7 @@ def send_welcome(message):
         "សួស្តី! ខ្ញុំជា Bot សម្រាប់ឆែកមើលសារពីគណនី mail.tm របស់អ្នក។\n\n"
         "👉 ប្រើ /login ដើម្បីចូលគណនី\n"
         "👉 ប្រើ /check ដើម្បីមើលសារដោយដៃ\n"
-        "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់ Bot ឱ្យស្រឡះ\n\n"
+        "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់\n\n"
         "🔔 ចំណាំ៖ ពេល Login រួចរាល់ ខ្ញុំនឹងផ្ញើសារថ្មីៗជូនអ្នកដោយស្វ័យប្រវត្តិ!"
     )
     bot.send_message(chat_id, welcome_text)
@@ -65,9 +52,8 @@ def process_password_step(message, email):
         token_res = requests.post(f"{API_URL}/token", json={"address": email, "password": password})
         if token_res.status_code == 200:
             token = token_res.json()['token']
-            # បន្ថែម msg_ids សម្រាប់ទុកកត់ត្រាសារលើអេក្រង់
-            user_emails[chat_id] = {"address": email, "password": password, "token": token, "seen_messages": [], "msg_ids": []}
-            send_and_track(chat_id, "✅ Login ទទួលបានជោគជ័យ! ឥឡូវនេះអ្នកអាចទុក Bot ចោលបាន។")
+            user_emails[chat_id] = {"address": email, "password": password, "token": token, "seen_messages": []}
+            bot.send_message(chat_id, "✅ Login ទទួលបានជោគជ័យ! ឥឡូវនេះអ្នកអាចទុក Bot ចោលបាន។")
             
             res = requests.get(f"{API_URL}/messages", headers={"Authorization": f"Bearer {token}"})
             if res.status_code == 200:
@@ -86,7 +72,7 @@ def check_email(message):
         bot.send_message(chat_id, "⚠️ សូមប្រើបញ្ជា /login ជាមុនសិន។")
         return
     
-    send_and_track(chat_id, "⏳ កំពុងឆែកមើលសារ...")
+    bot.send_message(chat_id, "⏳ កំពុងឆែកមើលសារ...")
     token = user_emails[chat_id]['token']
     seen_list = user_emails[chat_id]['seen_messages']
     headers = {"Authorization": f"Bearer {token}"}
@@ -96,7 +82,7 @@ def check_email(message):
         messages = res.json().get('hydra:member', [])
 
         if not messages:
-            send_and_track(chat_id, "📭 មិនមានសារចូលទេ (Inbox ទទេ)។")
+            bot.send_message(chat_id, "📭 មិនមានសារចូលទេ (Inbox ទទេ)។")
         else:
             for msg in messages[:5]: 
                 msg_id = msg['id']
@@ -119,48 +105,33 @@ def check_email(message):
                 code_alert = "👇 **លេខកូដនៅសារខាងក្រោម (ចុចដើម្បី Copy)** 👇\n" if code_match else ""
 
                 email_text = f"{status}\n⏰ ពេលវេលា៖ {time_str}\n👤 ពី៖ {sender}\n📝 ប្រធានបទ៖ {subject}\n{code_alert}💬 ខ្លឹមសារ៖ \n{text_content}...\n"
-                send_and_track(chat_id, email_text, parse_mode='Markdown')
+                bot.send_message(chat_id, email_text, parse_mode='Markdown')
 
                 if code_match:
                     otp = code_match.group(0)
-                    send_and_track(chat_id, f"`{otp}`", parse_mode='Markdown')
+                    bot.send_message(chat_id, f"`{otp}`", parse_mode='Markdown')
 
     except Exception as e:
-        send_and_track(chat_id, f"❌ មានកំហុស៖ {e}")
+        bot.send_message(chat_id, f"❌ មានកំហុស៖ {e}")
 
-# --- មុខងារ /clean (សម្អាតសារពីលើអេក្រង់ Telegram) ---
+# --- មុខងារ /clean (បោសសម្អាតអេក្រង់ Telegram ទាំងស្រុង) ---
 @bot.message_handler(commands=['clean'])
 def clean_bot_chat(message):
     chat_id = message.chat.id
+    current_id = message.message_id
     
-    # លុបបញ្ជា /clean ដែលអតិថិជនវាយបញ្ចូលដើម្បីកុំឱ្យរញ៉េរញ៉ៃ
-    try:
-        bot.delete_message(chat_id, message.message_id)
-    except:
-        pass
-
-    if chat_id not in user_emails or "msg_ids" not in user_emails[chat_id]:
-        bot.send_message(chat_id, "⚠️ មិនមានសារដែលត្រូវលុបទេ ឬអ្នកមិនទាន់ Login។")
-        return
-        
-    msg_ids = user_emails[chat_id]["msg_ids"]
-    if not msg_ids:
-        return
-
-    # វានឹងលុបសារដែលបានកត់ត្រាទុកម្តងមួយៗ
-    deleted_count = 0
-    for m_id in msg_ids:
+    # ផ្ញើសារប្រាប់អតិថិជនសិន
+    temp_msg = bot.send_message(chat_id, "🧹 កំពុងបោសសម្អាតសារទាំងអស់ពីលើអេក្រង់...")
+    
+    # ល្បិច៖ ឱ្យ Bot តាមលុបសារថយក្រោយចំនួន ១០០ សារជាប់ៗគ្នា
+    for m_id in range(current_id, current_id - 100, -1):
         try:
             bot.delete_message(chat_id, m_id)
-            deleted_count += 1
         except:
-            pass
+            pass # បើគ្មានសារ ឱ្យវារំលង
             
-    # Reset បញ្ជីដែលបានលុបរួច
-    user_emails[chat_id]["msg_ids"] = [] 
-    
-    # លោតសារជោគជ័យ រួចលុបវាចោលវិញដោយស្វ័យប្រវត្តិក្នុងរយៈពេល ៣ វិនាទី
-    success_msg = bot.send_message(chat_id, f"✅ បានសម្អាតអេក្រង់រួចរាល់! (សារក្នុង mail.tm នៅរក្សាទុកដដែល)")
+    # លោតសារបញ្ជាក់ រួចលុបវាចោលវិញក្នុង ៣ វិនាទី
+    success_msg = bot.send_message(chat_id, "✅ បានសម្អាតអេក្រង់រួចរាល់!")
     threading.Timer(3.0, lambda: bot.delete_message(chat_id, success_msg.message_id)).start()
 
 # ==========================================
@@ -196,11 +167,11 @@ def auto_check_new_emails():
                             code_alert = "👇 **លេខកូដនៅសារខាងក្រោម (ចុចដើម្បី Copy)** 👇\n" if code_match else ""
 
                             email_text = f"🔔 **អ្នកមានសារថ្មីចូល!** 🔔\n⏰ ពេលវេលា៖ {time_str}\n👤 ពី៖ {sender}\n📝 ប្រធានបទ៖ {subject}\n{code_alert}💬 ខ្លឹមសារ៖ \n{text_content}...\n"
-                            send_and_track(chat_id, email_text, parse_mode='Markdown')
+                            bot.send_message(chat_id, email_text, parse_mode='Markdown')
 
                             if code_match:
                                 otp = code_match.group(0)
-                                send_and_track(chat_id, f"`{otp}`", parse_mode='Markdown')
+                                bot.send_message(chat_id, f"`{otp}`", parse_mode='Markdown')
             except:
                 pass
         time.sleep(10) 
