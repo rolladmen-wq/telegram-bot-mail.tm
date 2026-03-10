@@ -20,6 +20,14 @@ def clean_html(raw_html):
     clean_text = re.sub(r'<[^>]+>', '', raw_html)
     return clean_text.strip()
 
+# --- មុខងារទាញយកលេខកូដ (OTP / Verification Code) ---
+def extract_otp_code(text):
+    # ស្វែងរកលេខសុទ្ធចាប់ពី ៤ ទៅ ៨ ខ្ទង់
+    match = re.search(r'\b\d{4,8}\b', text)
+    if match:
+        return match.group(0)
+    return None
+
 # --- មុខងារ /start ---
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -126,10 +134,18 @@ def check_email(message):
                     print(f"Check time error: {e}")
                     time_str = "មិនស្គាល់ម៉ោង"
 
+                # ស្វែងរកលេខកូដពីក្នុងអត្ថបទ
+                otp_code = extract_otp_code(text_content)
+
                 email_text = f"{status}\n"
                 email_text += f"⏰ ពេលវេលា៖ {time_str}\n"
                 email_text += f"👤 ពី៖ {sender}\n"
                 email_text += f"📝 ប្រធានបទ៖ {subject}\n"
+                
+                # បើវារកឃើញលេខកូដ វានឹងលោតមុខងារ ចុចដើម្បី Copy
+                if otp_code:
+                    email_text += f"🔑 **លេខកូដ (ចុច Copy)៖** `{otp_code}`\n"
+                    
                 email_text += f"💬 ខ្លឹមសារ៖ \n{text_content}...\n"
                 
                 bot.send_message(chat_id, email_text, parse_mode='Markdown')
@@ -179,10 +195,18 @@ def auto_check_new_emails():
                                     print(f"Auto-forward time error: {e}")
                                     time_str = "មិនស្គាល់ម៉ោង"
 
+                                # ស្វែងរកលេខកូដពីក្នុងអត្ថបទ
+                                otp_code = extract_otp_code(text_content)
+
                                 email_text = "🔔 **អ្នកមានសារថ្មីចូល!** 🔔\n"
                                 email_text += f"⏰ ពេលវេលា៖ {time_str}\n"
                                 email_text += f"👤 ពី៖ {sender}\n"
                                 email_text += f"📝 ប្រធានបទ៖ {subject}\n"
+                                
+                                # បើវារកឃើញលេខកូដ វានឹងលោតមុខងារ ចុចដើម្បី Copy
+                                if otp_code:
+                                    email_text += f"🔑 **លេខកូដ (ចុច Copy)៖** `{otp_code}`\n"
+                                    
                                 email_text += f"💬 ខ្លឹមសារ៖ \n{text_content}...\n"
                                 
                                 bot.send_message(chat_id, email_text, parse_mode='Markdown')
@@ -196,13 +220,14 @@ def auto_check_new_emails():
 # ==========================================
 def keep_alive():
     class RequestHandler(BaseHTTPRequestHandler):
+        # សម្រាប់ឆ្លើយតបពេល Render ឬ UptimeRobot ឆែកមើលធម្មតា
         def do_GET(self):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(b"Bot is running smoothly on Render!")
             
-        # បន្ថែមមុខងារ do_HEAD ថ្មីនៅទីនេះ ដើម្បីដោះស្រាយ Error 501
+        # បន្ថែមមុខងារ do_HEAD ដើម្បីដោះស្រាយ Error 501
         def do_HEAD(self):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
@@ -226,6 +251,4 @@ if __name__ == '__main__':
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     
     # បើកដំណើរការ Bot Telegram
-
     bot.polling(none_stop=True)
-
