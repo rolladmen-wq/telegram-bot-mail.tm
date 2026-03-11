@@ -132,7 +132,7 @@ def clean_bot_chat(message):
     success_msg = bot.send_message(chat_id, "✅ បានសម្អាតអេក្រង់ Telegram រួចរាល់!")
     threading.Timer(3.0, lambda: bot.delete_message(chat_id, success_msg.message_id)).start()
 
-# --- មុខងារ /admin (ទាក់ទងម្ចាស់ Bot) ---
+# --- មុខងារ /admin (ទាក់ទង admin) ---
 @bot.message_handler(commands=['admin'])
 def contact_admin(message):
     chat_id = message.chat.id
@@ -141,7 +141,7 @@ def contact_admin(message):
     admin_username = "Yamato_Oden99" 
     
     admin_text = (
-        "👨‍💻 **ទាក់ទងម្ចាស់ Bot (Admin)**\n\n"
+        "👨‍💻 **ទាក់ទង Admin (Admin)**\n\n"
         "ប្រសិនបើអ្នកមានបញ្ហា ត្រូវការជំនួយ ឬចង់សាកសួរព័ត៌មានបន្ថែម សូមចុចលើតំណភ្ជាប់ខាងក្រោមដើម្បីឆាតទៅកាន់ Admin ផ្ទាល់៖\n\n"
         f"👉 **[ចុចទីនេះដើម្បីឆាតជាមួយ Admin](https://t.me/{admin_username})**"
     )
@@ -220,4 +220,5 @@ if __name__ == '__main__':
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     bot.polling(none_stop=True)
+
 
