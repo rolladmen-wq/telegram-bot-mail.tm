@@ -27,7 +27,8 @@ def send_welcome(message):
         "សួស្តី! ខ្ញុំជា Bot សម្រាប់ឆែកមើលសារពីគណនី mail.tm របស់អ្នក។\n\n"
         "👉 ប្រើ /login ដើម្បីចូលគណនី\n"
         "👉 ប្រើ /check ដើម្បីមើលសារដោយដៃ\n"
-        "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់ (Clear Chat)\n\n"
+        "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់\n"
+        "👉 ប្រើ /admin ដើម្បីទាក់ទងម្ចាស់ Bot\n\n"
         "🔔 ចំណាំ៖ ពេល Login រួចរាល់ ខ្ញុំនឹងផ្ញើសារថ្មីៗជូនអ្នកដោយស្វ័យប្រវត្តិ!"
     )
     bot.send_message(chat_id, welcome_text)
@@ -120,19 +121,32 @@ def clean_bot_chat(message):
     chat_id = message.chat.id
     current_id = message.message_id
     
-    # ផ្ញើសារប្រាប់អតិថិជន
     temp_msg = bot.send_message(chat_id, "🧹 កំពុងបោសសម្អាតអេក្រង់ Telegram (សារក្នុង mail.tm នៅដដែល)...")
     
-    # ល្បិច៖ ឱ្យ Bot តាមលុបសារថយក្រោយចំនួន ១០០ សារជាប់ៗគ្នា តែក្នុង Telegram
     for m_id in range(current_id, current_id - 100, -1):
         try:
             bot.delete_message(chat_id, m_id)
         except:
-            pass # បើគ្មានសារ ឱ្យវារំលង
+            pass
             
-    # លោតសារបញ្ជាក់ រួចលុបវាចោលវិញក្នុង ៣ វិនាទី ដើម្បីឱ្យអេក្រង់ទទេស្អាត១០០%
     success_msg = bot.send_message(chat_id, "✅ បានសម្អាតអេក្រង់ Telegram រួចរាល់!")
     threading.Timer(3.0, lambda: bot.delete_message(chat_id, success_msg.message_id)).start()
+
+# --- មុខងារ /admin (ទាក់ទងម្ចាស់ Bot) ---
+@bot.message_handler(commands=['admin'])
+def contact_admin(message):
+    chat_id = message.chat.id
+    
+    # ទីកន្លែងដែលអ្នកត្រូវប្តូរ Username របស់អ្នក ឧ. "komsan_admin"
+    admin_username = "@Yamato_Oden99" 
+    
+    admin_text = (
+        "👨‍💻 **ទាក់ទងម្ចាស់ Bot (Admin)**\n\n"
+        "ប្រសិនបើអ្នកមានបញ្ហា ត្រូវការជំនួយ ឬចង់សាកសួរព័ត៌មានបន្ថែម សូមចុចលើតំណភ្ជាប់ខាងក្រោមដើម្បីឆាតទៅកាន់ Admin ផ្ទាល់៖\n\n"
+        f"👉 **[ចុចទីនេះដើម្បីឆាតជាមួយ Admin](https://t.me/{admin_username})**"
+    )
+    # disable_web_page_preview=True ដើម្បីកុំឱ្យវាលោតផ្ទាំង Preview រូបភាពរញ៉េរញ៉ៃ
+    bot.send_message(chat_id, admin_text, parse_mode='Markdown', disable_web_page_preview=True)
 
 # ==========================================
 # មុខងារឆែកសារដោយស្វ័យប្រវត្តិ (Auto-Forward)
@@ -194,11 +208,13 @@ def keep_alive():
     HTTPServer(('', port), RequestHandler).serve_forever()
 
 if __name__ == '__main__':
+    # Update Menu ខាងឆ្វេងដៃឱ្យមាន /admin
     bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម"),
         BotCommand("login", "ចូលគណនី"),
         BotCommand("check", "ឆែកសារ"),
-        BotCommand("clean", "សម្អាតអេក្រង់ (Clear Chat)") 
+        BotCommand("clean", "សម្អាតអេក្រង់"),
+        BotCommand("admin", "ទាក់ទងម្ចាស់ Bot")
     ])
     print("Bot កំពុងដំណើរការ...")
     threading.Thread(target=keep_alive, daemon=True).start()
