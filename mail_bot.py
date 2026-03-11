@@ -138,7 +138,7 @@ def contact_admin(message):
     chat_id = message.chat.id
     
     # ទីកន្លែងដែលអ្នកត្រូវប្តូរ Username របស់អ្នក ឧ. "komsan_admin"
-    admin_username = "@Yamato_Oden99" 
+    admin_username = "Yamato_Oden99" 
     
     admin_text = (
         "👨‍💻 **ទាក់ទងម្ចាស់ Bot (Admin)**\n\n"
@@ -220,3 +220,4 @@ if __name__ == '__main__':
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     bot.polling(none_stop=True)
+
