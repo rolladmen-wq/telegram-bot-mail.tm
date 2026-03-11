@@ -132,7 +132,7 @@ def clean_bot_chat(message):
     success_msg = bot.send_message(chat_id, "✅ បានសម្អាតអេក្រង់ Telegram រួចរាល់!")
     threading.Timer(3.0, lambda: bot.delete_message(chat_id, success_msg.message_id)).start()
 
-# --- មុខងារ /admin (ទាក់ទង admin) ---
+# --- មុខងារ /admin (ទាក់ទង Admin) ---
 @bot.message_handler(commands=['admin'])
 def contact_admin(message):
     chat_id = message.chat.id
@@ -220,5 +220,6 @@ if __name__ == '__main__':
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     bot.polling(none_stop=True)
+
 
 
