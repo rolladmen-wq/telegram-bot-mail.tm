@@ -138,7 +138,7 @@ def contact_admin(message):
     chat_id = message.chat.id
     
     # បញ្ចូល Username របស់អ្នកដោយមិនបាច់មានសញ្ញា @ ឧ. komsan_admin
-    admin_username = "Yamato_SupportBot" 
+    admin_username = "Yamato_Oden99" 
     
     admin_text = (
         "👨‍💻 **ទាក់ទង Admin**\n\n"
@@ -219,3 +219,4 @@ if __name__ == '__main__':
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     bot.polling(none_stop=True)
+
