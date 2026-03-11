@@ -28,7 +28,7 @@ def send_welcome(message):
         "👉 ប្រើ /login ដើម្បីចូលគណនី\n"
         "👉 ប្រើ /check ដើម្បីមើលសារដោយដៃ\n"
         "👉 ប្រើ /clean ដើម្បីសម្អាតអេក្រង់\n"
-        "👉 ប្រើ /admin ដើម្បីទាក់ទងម្ចាស់ Bot\n\n"
+        "👉 ប្រើ /admin ដើម្បីទាក់ទង Admin\n\n"
         "🔔 ចំណាំ៖ ពេល Login រួចរាល់ ខ្ញុំនឹងផ្ញើសារថ្មីៗជូនអ្នកដោយស្វ័យប្រវត្តិ!"
     )
     bot.send_message(chat_id, welcome_text)
@@ -115,7 +115,7 @@ def check_email(message):
     except Exception as e:
         bot.send_message(chat_id, f"❌ មានកំហុស៖ {e}")
 
-# --- មុខងារ /clean (បោសសម្អាតតែអេក្រង់ Telegram ប៉ុណ្ណោះ មិនប៉ះពាល់ Mail.tm ទេ) ---
+# --- មុខងារ /clean (បោសសម្អាតតែអេក្រង់ Telegram ប៉ុណ្ណោះ) ---
 @bot.message_handler(commands=['clean'])
 def clean_bot_chat(message):
     chat_id = message.chat.id
@@ -137,15 +137,14 @@ def clean_bot_chat(message):
 def contact_admin(message):
     chat_id = message.chat.id
     
-    # ទីកន្លែងដែលអ្នកត្រូវប្តូរ Username របស់អ្នក ឧ. "komsan_admin"
-    admin_username = "Yamato_Oden99" 
+    # បញ្ចូល Username របស់អ្នកដោយមិនបាច់មានសញ្ញា @ ឧ. komsan_admin
+    admin_username = "Yamato_SupportBot" 
     
     admin_text = (
-        "👨‍💻 **ទាក់ទង Admin (Admin)**\n\n"
+        "👨‍💻 **ទាក់ទង Admin**\n\n"
         "ប្រសិនបើអ្នកមានបញ្ហា ត្រូវការជំនួយ ឬចង់សាកសួរព័ត៌មានបន្ថែម សូមចុចលើតំណភ្ជាប់ខាងក្រោមដើម្បីឆាតទៅកាន់ Admin ផ្ទាល់៖\n\n"
         f"👉 **[ចុចទីនេះដើម្បីឆាតជាមួយ Admin](https://t.me/{admin_username})**"
     )
-    # disable_web_page_preview=True ដើម្បីកុំឱ្យវាលោតផ្ទាំង Preview រូបភាពរញ៉េរញ៉ៃ
     bot.send_message(chat_id, admin_text, parse_mode='Markdown', disable_web_page_preview=True)
 
 # ==========================================
@@ -208,18 +207,15 @@ def keep_alive():
     HTTPServer(('', port), RequestHandler).serve_forever()
 
 if __name__ == '__main__':
-    # Update Menu ខាងឆ្វេងដៃឱ្យមាន /admin
+    # Menu ខាងឆ្វេងដៃត្រូវបានអាប់ដេតពាក្យ "ទាក់ទង Admin"
     bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម"),
         BotCommand("login", "ចូលគណនី"),
         BotCommand("check", "ឆែកសារ"),
-        BotCommand("clean", "សម្អាតអេក្រង់"),
-        BotCommand("admin", "ទាក់ទងម្ចាស់ Bot")
+        BotCommand("clean", "សម្អាតអេក្រង់ (Clear Chat)"),
+        BotCommand("admin", "ទាក់ទង Admin")
     ])
     print("Bot កំពុងដំណើរការ...")
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
     bot.polling(none_stop=True)
-
-
-
