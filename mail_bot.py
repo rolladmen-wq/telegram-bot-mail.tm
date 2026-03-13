@@ -137,7 +137,7 @@ def clean_bot_chat(message):
 def contact_admin(message):
     chat_id = message.chat.id
     
-    # បញ្ចូល Username របស់អ្នកដោយមិនបាច់មានសញ្ញា @ ឧ. komsan_admin
+    # ២. បញ្ចូល Username របស់អ្នកដោយមិនបាច់មានសញ្ញា @ ឧ. komsan_admin
     admin_username = "Yamato_Oden99" 
     
     admin_text = (
@@ -207,7 +207,7 @@ def keep_alive():
     HTTPServer(('', port), RequestHandler).serve_forever()
 
 if __name__ == '__main__':
-    # Menu ខាងឆ្វេងដៃត្រូវបានអាប់ដេតពាក្យ "ទាក់ទង Admin"
+    # Update Menu ខាងឆ្វេងដៃ
     bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម"),
         BotCommand("login", "ចូលគណនី"),
@@ -218,5 +218,11 @@ if __name__ == '__main__':
     print("Bot កំពុងដំណើរការ...")
     threading.Thread(target=keep_alive, daemon=True).start()
     threading.Thread(target=auto_check_new_emails, daemon=True).start()
-    bot.polling(none_stop=True)
-
+    
+    # ៣. ប្រព័ន្ធការពារ Bot គាំង (Auto-Restart ពេលដាច់ Connection)
+    while True:
+        try:
+            bot.polling(none_stop=True, timeout=60)
+        except Exception as e:
+            print(f"ប្រព័ន្ធគាំង ឬដាច់អ៊ីនធឺណិត៖ {e}")
+            time.sleep(5) # សម្រាក ៥ វិនាទី រួចបញ្ឆេះខ្លួនឯងឡើងវិញ
